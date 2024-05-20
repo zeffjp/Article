@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ArticleActivity">
 
-    <TextView
+    <EditText
         android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,7 +15,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"/>
 
-    <TextView
+    <EditText
         android:id="@+id/contentTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

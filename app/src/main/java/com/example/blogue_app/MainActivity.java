@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         listView = findViewById(R.id.articleListView);
-        Button addButton = findViewById(R.id.addArticleButton);
+        FloatingActionButton addButton = findViewById(R.id.addArticleButton);
         dbHelper = new MyDatabaseHelper(this);
 
         articleList.add(new Article("Introduction a l'Intelligence Artificielle", "Dans cet article, nous allons explorer le fascinant domaine de l'intelligence artificielle (IA)..."));
