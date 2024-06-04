@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         articleList.addAll(dbHelper.getAllArticles());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+<<<<<<< HEAD
         adapter = new ArticleAdapter(this, articleList, new ArticleAdapter.OnArticleClickListener() {
             @Override
             public void onArticleClick(Article article) {
@@ -61,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
                 showDeleteConfirmationDialog(article);
             }
         });
+=======
+        adapter = new ArticleAdapter(this, articleList, this::openDetailsActivity);
+>>>>>>> 9350ed799b49a8485fb07f514b66e58587005c1e
         recyclerView.setAdapter(adapter);
     }
 
@@ -163,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("status", article.getStatus());
         startActivity(intent);
     }
+<<<<<<< HEAD
 
     private void showDeleteConfirmationDialog(Article article) {
         new AlertDialog.Builder(this)
@@ -178,4 +183,6 @@ public class MainActivity extends AppCompatActivity {
         refreshArticleList();
         Toast.makeText(this, "Article supprimé", Toast.LENGTH_SHORT).show();
     }
+=======
+>>>>>>> 9350ed799b49a8485fb07f514b66e58587005c1e
 }

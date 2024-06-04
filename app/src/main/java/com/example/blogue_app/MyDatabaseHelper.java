@@ -1,3 +1,4 @@
+// MyDatabaseHelper.java
 package com.example.blogue_app;
 
 import android.content.ContentValues;
@@ -98,6 +99,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             Toast.makeText(context, "Article mis à jour avec succès", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, "Échec de la mise à jour de l'article", Toast.LENGTH_SHORT).show();
+<<<<<<< HEAD
         }
 
         Log.d("MyDatabaseHelper", "Lignes affectées : " + rowsAffected);
@@ -117,6 +119,12 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
         Log.d("MyDatabaseHelper", "Lignes supprimées : " + rowsDeleted);
         Log.d("MyDatabaseHelper", "ID de l'article supprimé : " + articleId);
+=======
+        }
+
+        Log.d("MyDatabaseHelper", "Lignes affectées : " + rowsAffected);
+        Log.d("MyDatabaseHelper", "ID de l'article mis à jour : " + article.getId());
+>>>>>>> 9350ed799b49a8485fb07f514b66e58587005c1e
 
         db.close();
     }

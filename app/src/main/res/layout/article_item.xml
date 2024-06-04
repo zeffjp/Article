@@ -15,6 +15,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"/>
 
+<<<<<<< HEAD
     <ImageView
         android:id="@+id/deleteImageView"
         android:layout_width="wrap_content"
@@ -23,4 +24,8 @@
         android:layout_centerVertical="true"
         android:layout_marginEnd="16dp"
         android:src="@drawable/ic_delete" />
+=======
+
+
+>>>>>>> 9350ed799b49a8485fb07f514b66e58587005c1e
 </RelativeLayout>
