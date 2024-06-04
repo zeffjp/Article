@@ -1,18 +1,20 @@
 package com.example.blogue_app;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -22,95 +24,158 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ListView listView;
+    private RecyclerView recyclerView;
     private List<Article> articleList = new ArrayList<>();
-    private ArrayAdapter<String> adapter;
+    private ArticleAdapter adapter;
     private MyDatabaseHelper dbHelper;
+    private Spinner filterSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView = findViewById(R.id.articleListView);
+        recyclerView = findViewById(R.id.articleRecyclerView);
+        filterSpinner = findViewById(R.id.filterSpinner);
         FloatingActionButton addButton = findViewById(R.id.addArticleButton);
         dbHelper = new MyDatabaseHelper(this);
 
-        articleList.add(new Article("Introduction a l'Intelligence Artificielle", "Dans cet article, nous allons explorer le fascinant domaine de l'intelligence artificielle (IA)..."));
-        articleList.add(new Article("Les dernières tendances en développement web", "Dans cet article, nous allons explorer les tendances actuelles en matière de développement web..."));
-        articleList.add(new Article("Sécurité informatique : Principes et bonnes pratiques", "Dans cet article, nous plongerons dans le monde de la sécurité informatique..."));
-        articleList.add(new Article("Blockchain : Technologie révolutionnaire et ses applications", "Cet article sera une plongée profonde dans la technologie de la blockchain..."));
-        articleList.add(new Article("Développement mobile : Comparaison des plateformes Android et iOS", "Dans cet article comparatif, nous examinerons les deux principales plateformes mobiles..."));
-        articleList.add(new Article("Internet des objets (IoT) : Applications et défis", "L'Internet des objets (IoT) est une technologie en plein essor qui connecte les appareils physiques à Internet..."));
-        articleList.add(new Article("Cybersécurité dans le cloud : Enjeux et meilleures pratiques", "Avec la montée en puissance du cloud computing, la cybersécurité dans le cloud est devenue une priorité essentielle..."));
+        setupRecyclerView();
+        setupFilterSpinner();
 
-        List<String> titles = new ArrayList<>();
-        for (Article article : articleList) {
-            titles.add(article.getTitle());
-        }
+        addButton.setOnClickListener(v -> openAddArticleDialog());
+    }
 
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titles);
-        listView.setAdapter(adapter);
+    private void setupRecyclerView() {
+        articleList.addAll(dbHelper.getAllArticles());
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ArticleAdapter(this, articleList, new ArticleAdapter.OnArticleClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Article selectedArticle = articleList.get(position);
-                Intent intent = new Intent(MainActivity.this, DetailsArticle.class);
-                intent.putExtra("title", selectedArticle.getTitle());
-                intent.putExtra("content", selectedArticle.getContent());
-                startActivity(intent);
+            public void onArticleClick(Article article) {
+                openDetailsActivity(article);
+            }
+
+            @Override
+            public void onDeleteClick(Article article) {
+                showDeleteConfirmationDialog(article);
             }
         });
+        recyclerView.setAdapter(adapter);
+    }
 
-        addButton.setOnClickListener(new View.OnClickListener() {
+    private void setupFilterSpinner() {
+        List<StatusItem> statusItems = new ArrayList<>();
+        statusItems.add(new StatusItem("All", ContextCompat.getColor(this, android.R.color.transparent)));
+        statusItems.add(new StatusItem("Todo", ContextCompat.getColor(this, R.color.colorTodo)));
+        statusItems.add(new StatusItem("InProgress", ContextCompat.getColor(this, R.color.colorInProgress)));
+        statusItems.add(new StatusItem("Done", ContextCompat.getColor(this, R.color.colorDone)));
+        statusItems.add(new StatusItem("Bug", ContextCompat.getColor(this, R.color.colorBug)));
+
+        StatusSpinnerAdapter adapter = new StatusSpinnerAdapter(this, statusItems);
+        filterSpinner.setAdapter(adapter);
+
+        filterSpinner.setSelection(0);
+
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                openAddArticleDialog();
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                StatusItem selectedItem = (StatusItem) parent.getItemAtPosition(position);
+                filterArticlesByStatus(selectedItem.getStatus());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Rien à faire en cas de non-sélection
             }
         });
     }
 
+    private void filterArticlesByStatus(String status) {
+        List<Article> filteredList = new ArrayList<>();
+        for (Article article : dbHelper.getAllArticles()) {
+            if (status.equals("All") || article.getStatus().equals(status)) {
+                filteredList.add(article);
+            }
+        }
+
+        articleList.clear();
+        articleList.addAll(filteredList);
+        adapter.notifyDataSetChanged();
+    }
+
     private void openAddArticleDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_add_article, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_article, null);
         builder.setView(dialogView);
 
         EditText editTextTitle = dialogView.findViewById(R.id.titleTextView);
         EditText editTextContent = dialogView.findViewById(R.id.contentTextView);
-        Button buttonAddArticle = dialogView.findViewById(R.id.addButton);
-        Button backButton = dialogView.findViewById(R.id.backButton);
-
+        Spinner statusSpinner = dialogView.findViewById(R.id.statusSpinner);
+        FloatingActionButton buttonAddArticle = dialogView.findViewById(R.id.addButton);
+        FloatingActionButton backButton = dialogView.findViewById(R.id.backButton);
         AlertDialog dialog = builder.create();
 
-        buttonAddArticle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String title = editTextTitle.getText().toString();
-                String content = editTextContent.getText().toString();
+        List<StatusItem> statusItems = new ArrayList<>();
+        statusItems.add(new StatusItem("Todo", ContextCompat.getColor(this, R.color.colorTodo)));
+        statusItems.add(new StatusItem("InProgress", ContextCompat.getColor(this, R.color.colorInProgress)));
+        statusItems.add(new StatusItem("Done", ContextCompat.getColor(this, R.color.colorDone)));
+        statusItems.add(new StatusItem("Bug", ContextCompat.getColor(this, R.color.colorBug)));
+        StatusSpinnerAdapter spinnerAdapter = new StatusSpinnerAdapter(this, statusItems);
+        statusSpinner.setAdapter(spinnerAdapter);
 
-                if (!title.isEmpty() && !content.isEmpty()) {
-                    Article newArticle = new Article(title, content);
-                    articleList.add(newArticle);
-                    adapter.notifyDataSetChanged();
+        buttonAddArticle.setOnClickListener(v -> {
+            String title = editTextTitle.getText().toString();
+            String content = editTextContent.getText().toString();
+            String status = ((StatusItem) statusSpinner.getSelectedItem()).getStatus();
 
-                    dbHelper.save(newArticle);
+            if (!title.isEmpty() && !content.isEmpty()) {
+                Article newArticle = new Article(0, title, content, status);
+                long result = dbHelper.addArticle(newArticle);
 
+                if (result != -1) {
+                    refreshArticleList();
                     dialog.dismiss();
                 } else {
-                    Toast.makeText(MainActivity.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Erreur lors de l'ajout de l'article", Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                Toast.makeText(MainActivity.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             }
         });
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        backButton.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    private void refreshArticleList() {
+        articleList.clear();
+        articleList.addAll(dbHelper.getAllArticles());
+        adapter.notifyDataSetChanged();
+    }
+
+    private void openDetailsActivity(Article article) {
+        Intent intent = new Intent(MainActivity.this, DetailsArticle.class);
+        intent.putExtra("articleId", article.getId());
+        intent.putExtra("title", article.getTitle());
+        intent.putExtra("content", article.getContent());
+        intent.putExtra("status", article.getStatus());
+        startActivity(intent);
+    }
+
+    private void showDeleteConfirmationDialog(Article article) {
+        new AlertDialog.Builder(this)
+                .setTitle("Supprimer l'article")
+                .setMessage("Êtes-vous sûr de vouloir supprimer cet article?")
+                .setPositiveButton("Oui", (dialog, which) -> deleteArticle(article))
+                .setNegativeButton("Non", null)
+                .show();
+    }
+
+    private void deleteArticle(Article article) {
+        dbHelper.deleteArticle(article.getId());
+        refreshArticleList();
+        Toast.makeText(this, "Article supprimé", Toast.LENGTH_SHORT).show();
     }
 }

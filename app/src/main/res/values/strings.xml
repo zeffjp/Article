@@ -1,8 +1,19 @@
 <resources>
-    <string name="app_name">Blogue App</string>
-    <string name="title">Title</string>
-    <string name="content">Content</string>
-    <string name="add">Ajouter</string>
-    <string name="add_button">Add Button</string>
-    <string name="back_button">Back Button</string>
+    <string name="app_name">BlogueApp</string>
+    <string name="title">Titre</string>
+    <string name="content">Contenu </string>
+    <string name="add_button">Ajouter</string>
+    <string name="back_button">Retour</string>
+    <string name="save_button">Retour</string>
+    <string name="titre_de_l_article">Titre de l\'article</string>
+    <dimen name="spacing">8dp</dimen>
+    <string-array name="status">
+        <item>All</item>
+        <item>ToDo</item>
+        <item>InProgress</item>
+        <item>Done</item>
+        <item>Bug</item>
+
+    </string-array>
+
 </resources>

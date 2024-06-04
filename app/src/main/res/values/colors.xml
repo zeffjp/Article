@@ -5,4 +5,10 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="white">#FFFFFF</color>
+
+    <color name="colorTodo">#676767</color> <!-- Gris pour Todo -->
+    <color name="colorInProgress">#00BFFF</color> <!-- Bleu pour InProgress -->
+    <color name="colorDone">#00FF00</color> <!-- Vert pour Done -->
+    <color name="colorBug">#FF0000</color> <!-- Rouge pour Bug -->
+    <color name="colorDefault">#EC16EC</color> <!-- Couleur par défaut -->
 </resources>
