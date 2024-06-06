@@ -1,9 +1,6 @@
 package com.example.blogue_app;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -23,6 +20,7 @@ public class DetailsArticle extends AppCompatActivity {
     private EditText contentTextView;
     private Spinner statusSpinner;
     private MyDatabaseHelper dbHelper;
+    private int articleId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +35,10 @@ public class DetailsArticle extends AppCompatActivity {
 
         dbHelper = new MyDatabaseHelper(this);
 
+        // Récupérer les données de l'article à partir de l'intent
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            articleId = extras.getInt("articleId");
             String title = extras.getString("title");
             String content = extras.getString("content");
             String status = extras.getString("status");
@@ -47,11 +47,11 @@ public class DetailsArticle extends AppCompatActivity {
             contentTextView.setText(content);
 
             setupStatusSpinner(status);
-
-            saveButton.setOnClickListener(v -> saveArticle());
-
-            backButton.setOnClickListener(v -> finish());
         }
+
+        saveButton.setOnClickListener(v -> saveArticle());
+
+        backButton.setOnClickListener(v -> finish());
     }
 
     private void setupStatusSpinner(String status) {
@@ -65,19 +65,14 @@ public class DetailsArticle extends AppCompatActivity {
         statusSpinner.setAdapter(adapter);
 
         // Sélection du statut actuel dans le Spinner
-        int position = getStatusPosition(status, statusItems);
-        if (position != -1) {
-            statusSpinner.setSelection(position);
-        }
-    }
-
-    private int getStatusPosition(String status, List<StatusItem> statusItems) {
+        int position = 0;
         for (int i = 0; i < statusItems.size(); i++) {
             if (statusItems.get(i).getStatus().equals(status)) {
-                return i;
+                position = i;
+                break;
             }
         }
-        return -1;
+        statusSpinner.setSelection(position);
     }
 
     private void saveArticle() {
@@ -85,16 +80,15 @@ public class DetailsArticle extends AppCompatActivity {
         String newContent = contentTextView.getText().toString();
         String newStatus = ((StatusItem) statusSpinner.getSelectedItem()).getStatus();
 
-        int articleId = getIntent().getIntExtra("articleId", -1);
-
-        if (articleId != -1) {
+        if (!newTitle.isEmpty() && !newContent.isEmpty()) {
             Article updatedArticle = new Article(articleId, newTitle, newContent, newStatus);
-
             dbHelper.updateArticle(updatedArticle);
 
-            Toast.makeText(this, "Modifications enregistrées", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Article mis à jour", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK);
+            finish();
         } else {
-            Toast.makeText(this, "Erreur lors de la récupération de l'article", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
         }
     }
 }
