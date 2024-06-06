@@ -187,4 +187,4 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Article supprimé", Toast.LENGTH_SHORT).show();
     }
 }
-
+ 
