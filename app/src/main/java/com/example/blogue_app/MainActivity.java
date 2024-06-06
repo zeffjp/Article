@@ -1,15 +1,14 @@
 package com.example.blogue_app;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -72,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
         statusItems.add(new StatusItem("Done", ContextCompat.getColor(this, R.color.colorDone)));
         statusItems.add(new StatusItem("Bug", ContextCompat.getColor(this, R.color.colorBug)));
 
-        StatusSpinnerAdapter adapter = new StatusSpinnerAdapter(this, statusItems);
-        filterSpinner.setAdapter(adapter);
+        StatusSpinnerAdapter spinnerAdapter = new StatusSpinnerAdapter(this, statusItems);
+        filterSpinner.setAdapter(spinnerAdapter);
 
         filterSpinner.setSelection(0);
 
@@ -86,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Rien à faire en cas de non-sélection
             }
         });
     }
@@ -136,8 +134,10 @@ public class MainActivity extends AppCompatActivity {
                 if (result != -1) {
                     refreshArticleList();
                     dialog.dismiss();
+                    Toast.makeText(MainActivity.this, "Article ajouté avec succès", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(MainActivity.this, "Erreur lors de l'ajout de l'article", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity
+                            .this, "Erreur lors de l'ajout de l'article", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(MainActivity.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
@@ -161,7 +161,15 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("title", article.getTitle());
         intent.putExtra("content", article.getContent());
         intent.putExtra("status", article.getStatus());
-        startActivity(intent);
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            refreshArticleList();
+        }
     }
 
     private void showDeleteConfirmationDialog(Article article) {
@@ -179,3 +187,4 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Article supprimé", Toast.LENGTH_SHORT).show();
     }
 }
+
